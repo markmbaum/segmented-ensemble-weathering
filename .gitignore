@@ -1,0 +1,5 @@
+arch/
+env/
+data/large-ens-convex
+data/chain.feather
+plots/

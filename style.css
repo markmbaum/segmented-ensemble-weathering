@@ -1,0 +1,104 @@
+body {
+    background-color: black;
+}
+
+#menu {
+    position: fixed;
+    left: 0.5cm;
+    top: 0.5cm;
+}
+
+#menu button {
+    color: inherit;
+    background-color: black;
+    border-color: white;
+}
+
+#menu .dropdown-menu {
+    background-color: black;
+    border-color: white;
+}
+
+#menu a {
+    background-color: black;
+    color: white;
+    text-decoration: none;
+}
+
+#menu a:hover {
+    color: gray;
+}
+
+#main {
+    max-width: 12in;
+    color: white;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 14pt;
+    text-align: center;
+    margin: auto;
+    padding: 1in 0 1in 0;
+}
+
+h1, h2, h3 {
+    max-width: 6in;
+    margin: inherit;
+    padding: 0.6cm 0 0.6cm 0;
+}
+
+h4 {
+    text-align: left;
+    max-width: 8in;
+    margin: inherit;
+    font-weight: bold;
+    font-style: italic;
+    padding-top: 0.9cm;
+    padding-bottom: 0.25cm;
+}
+
+p {
+    max-width: 8in;
+    margin: auto;
+    text-align: justify;
+    padding: 0.25cm 0 0.25cm 0;
+}
+
+a {
+    color: white;
+    text-decoration: underline;
+}
+
+a:hover {
+    color: gray;
+}
+
+ol, ul {
+    margin: inherit;
+    text-align: left;
+    max-width: 7in;
+}
+
+.figure {
+    text-align: inherit;
+    max-width: inherit;
+    padding: 1cm 0 1cm 0;
+}
+
+.small-figure {
+    max-width: 6in;
+    margin: 0 auto 0 auto;
+}
+
+.figure img {
+    text-align: inherit;
+    min-width: 100%;
+    max-width: inherit;
+}
+
+.figure p {
+    font-size: 11pt;
+    text-align: center;   
+}
+
+.paren {
+    opacity: 0.7;
+}

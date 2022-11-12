@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Segmented Continental Weathering</title>
+  <meta name="description" content="Analyzing the relationship between continental configuration and global weathering" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Mark Baum">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" integrity="sha384-Juol1FqnotbkyZUT5Z7gUPjQ9gzlwCENvUZTpQBAPxtusdwFLRy382PSDx5UUJ4/" crossorigin="anonymous">
+  <script type="module">
+      import renderMathInElement from "https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/contrib/auto-render.mjs";
+      renderMathInElement(
+        document.body,
+        {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: "\\begin{equation}", right: "\\end{equation}", display: true},
+            {left: "\\begin{align}", right: "\\end{align}", display: true}
+          ]
+        }
+      );
+  </script>
+</head>
+
+<body>
+  
+<div id="main">
+
+  <div class="dropdown" id="menu">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <img style="width: 30px;" src="img/hamburger.png">
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      <a class="dropdown-item" href="#preamble">Preamble</a>
+      <a class="dropdown-item" href="#weathering-and-climate">Weathering & Climate</a>
+      <a class="dropdown-item" href="#randomized-experiments">Randomized Experiments</a>
+      <a class="dropdown-item" href="#segmented-land-masses">Segmented Land Masses</a>
+      <a class="dropdown-item" href="#weathering-and-geometry">Weathering & Geometry</a>
+      <a class="dropdown-item" href="#explanatory-models">Explanatory Models</a>
+      <a class="dropdown-item" href="#influence-of-little-terrains">Influence of Little Terrains</a>
+    </div>
+  </div>
+
+  <h1>Continental Configuration, Weathering, and Global Climate</h1>
+
+  <h2>Continued...</h2>
+
+  <h3>Mark Baum</h3>
+
+  <h4 id="preamble">Preamble</h4>
+
+  <p>
+    What is this? It's analysis of how the arrangement of landmasses on the Earth's surface affects the planet's carbon cycle and climate over millions and billions of years. It follows directly from a <a href="refs/baum_sensitive_2022.pdf" target="_blank">study</a> that I did with <a href="https://minminfu.github.io/" target="_blank">Minmin Fu</a>, published in May of 2022 right at the end of grad school. A lot of credit is owed to Minmin for setting up and running all of our global climate simulations on the NCAR computing cluster. 
+  </p>
+
+  <p>
+    The objective is to characterize how reliably the latitude, size, and shape of an arbitrary landmass predict its contribution to global silicate weathering, and what impact the weathering response has on global temperature.
+  </p>
+
+  <p>
+    I don't rehash all of the introductory/background information or the methodological details here because they're in the <a href="refs/baum_sensitive_2022.pdf" target="_blank">paper</a>. I assume anyone reading this knows about the silicate weathering cycle and the general concept of plate tectonics. I also assume you know what I mean by WHAK and MAC, which are parameterizations of the weathering rate. These parameterizations are detailed in our <a href="refs/baum_sensitive_2022_supplement.pdf" target="_blank">supplement</a> with citations if that's useful. When I reference WHAK and MAC, I'm talking about Equations 4 and 8 in that document, respectively.
+  </p>
+
+  <p>
+    I could send the following analysis to a journal, but I have no strong incentive to publish anymore and I think this format, a simple static site, is better in most ways. The basic conception and methods were reviewed for the paper, so I'm not concerned about that. I can also write more casually, include as many huge figures as I want, and do all my own formatting/styling. I have no length/structure requirements and can avoid the janky equation typesetting common to the web format of many journals (scroll through <a href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2022GC010611" target="_blank">this</a>, yikes). I also like this format because I have no reason to twist language or bury results to make things look nice and neat.
+  </p>
+
+  <p>
+    Just a few more notes before getting started. This site is on <a href="https://github.com/markmbaum/segmented-ensemble-weathering" target="_blank">my github</a> along with the <a href="https://github.com/markmbaum/segmented-ensemble-weathering/blob/main/data/segmented_weathering.csv" target="_blank">processed results</a> used in all of the analyses below. The <i>unprocessed</i> results, which consist of model output files for all 120 continental configurations in NetCDF format, are not in the repository because they're much bigger files. They were <a href="https://zenodo.org/record/6540321#.Y2Q113bMLSI" target="_blank">archived</a> for the original study. Much of the processing is done with a small Julia package called <a href="https://github.com/markmbaum/GEOCLIM.jl" target="_blank">GEOCLIM.jl</a> that I developed with Minmin. The <a href="https://github.com/markmbaum/segmented-ensemble-weathering/blob/main/scripts/ensemble_segmentation.jl" target="_blank">processing script</a> (also in Julia) is in the same repo. Most of this was done in a <a href="https://github.com/markmbaum/segmented-ensemble-weathering/blob/main/scripts/segmented_ensemble_analysis.ipynb" target="_blank">notebook</a>. Last, it's nice to have <a href="https://katex.org/" target="_blank">$\KaTeX$</a> available, making it easy to typeset the equations and symbols.
+  </p>
+
+  <div class="figure" id="fig-1">
+    <img src="img/segmentation.png">
+    <p>
+      <b>Figure 1:</b> Randomly selected continental configurations, each with unique and randomly distributed landmasses, from the 120 configurations used for simulations. The land-sea masks are segmented (split into contiguous landmasses) and assigned random colors for this plot.
+    </p>
+  </div>
+
+  <h4 id="weathering-and-climate">Weathering & Climate</h4>
+
+  <p>
+    How sensitive is global temperature to changes in the silicate weathering rate? Nobody knows exactly. Even constraining the global silicate weathering rate on Earth <i>right now</i> is extremely challenging. Some simple calculations, within the context of a zero-dimensional climate model, are helpful.
+  </p>
+
+  <p>
+    Take this simplified, general, global representation of the long-term carbon cycle
+    \begin{equation}
+      \dot{C} = V - \mathcal{X} \, W\left[ T(C), \, q(C) \right] \, ,
+    \end{equation}
+    where $C$ is the total amount of carbon in the ocean-atmosphere system, $V$ is the volcanic outgassing rate, and $W$ is the rate of carbon sequestration by silicate weathering. Assume volcanic outgassing $V$ is a constant. There is a partioning of carbon between the ocean and atmosphere, but we assume $C$ sets the atmospheric carbon dioxide concentration and surface temperature, so $W$ depends on $C$ through the temperature $T$ and runoff/precipitation $q$. The $\mathcal{X}$ parameter is a catch-all for anything else that modifies weathering, independent of $C$. A "weatherability" parameter, $\mathcal{X}$ could represent changing continental shape/position or shifts in geochemical cycles, for example.
+  </p>
+
+  <p>
+    Nobody knows what exactly the expressions for $W$ or $\mathcal{X}$ should be, so the equation can't simply be integrated. If I make assumptions about $T(C)$ and $q(C)$, however, I can test the impact of exogenous weathering changes via $\mathcal{X}$. Specifically, I assume $T$ and $q$ depend only on the atmospheric carbon dioxide concentration, as detailed in <a href="refs/baum_simple_2022.pdf" target="_blank">another paper</a> if you're curious. With those assumptions, I compute the equilibrium value of $C$ for different values of $W$ by solving $\dot{C} = 0$, or
+    \begin{equation}
+      \frac{V}{\mathcal{X}} = W\left[ T(C), \, q(C) \right] \, .
+    \end{equation}
+    At the solution point for $C$, the global temperature estimate is already known through $T(C)$.
+  </p>  
+  
+  <p>
+    Here's what happens when using WHAK and MAC to calculate $W$ and <a href="https://github.com/markmbaum/segmented-ensemble-weathering/blob/main/scripts/weathering_balance.jl" target="_blank">solving</a> for equilibrium temperatures across different values of $\mathcal{X}$:
+  </p>
+
+  <div class="figure" id="fig-2">
+    <img src="img/temperature_response_curves.png">
+    <p>
+      <b>Figure 2:</b> Estimates of how global temperature responds to changes in the weathering rate, everything else held constant.
+    </p>
+  </div>
+
+  <p>
+    On the left, the curves indicate how temperature responds to weathering changes, with a logarithmic horizontal axis showing the fractional change from the original state. Predictably, WHAK yields a nearly straight line because of it's simple exponential temperature dependence. MAC is <i>less</i> sensitive to temperature, however, so the feedback is weaker and high weathering produces comparatively cold temperatures. This is curious in it's own right, but not worth digging into here. On the right I highlight the temperature change in response to factor of 2 changes to the original state, just for reference. The basic point is that a factor of 2 change in weathering results in a 5-6 K temperature change, except when MAC weathering doubles.
+  </p>
+
+  <h4 id="randomized-experiments">Randomized Experiments</h4>
+
+  <p>
+    None of the above is novel, so what am I up to here? I'm trying to understand how $W$ will change in response to the shifting positions and shapes of Earth's continents over geologic time. The idea is that as landmasses move, changing patterns of $T$ and $q$ over their surfaces modify global weathering and, therefore, global temperature. There is a long history of research into this specific topic. Continental configuration has been implicated in the inception of snowball Earth periods, for example, along with a number of other temperature changes in the climate record. But studies have been limited to specific periods in Earth history, using a few reconstructions of ancient continental arrangements, or idealized setups like perfectly rectangular or ring shaped continents. That's all fine and good, but it's hard to make any conclusions about how continental configuration influences weathering <i>in general</i>. The samples are too limited, ad hoc, and poorly controlled.
+  </p>
+
+  <p>
+    To improve the state of knowledge, Minmin and I created a set of 120 <i>random</i> continental configurations by tinkering with spherical harmonic expansions. They were designed to sample a wide range of shapes, latitudes, and sizes, but otherwise have identical total land area. A group of 16 example maps is shown in <a href="#fig-1">Figure 1</a> and their weathering maps are in <a href="#fig-3">Figure 3</a>. Some of them have one huge continent and some have a bunch of smaller landmasses. Some are weirdly shaped and some are mostly round. Sometimes a landmass occupies only a single grid cell. The important point is that these maps are created with as few assumptions as possible and they exhibit a lot of variation. They're literally generated from noise.
+  </p>
+
+  <div class="figure" id="fig-3">
+    <img src="img/weathering_maps.png">
+    <p>
+      <b>Figure 3:</b> MAC weathering over 16 randomly selected configurations/maps, the same ones from <a href="#fig-1">Figure 1</a>.
+    </p>
+  </div>
+
+  <p>
+    We fed these continental configuration into a global climate model to compute the average temperature and runoff over all the land area. From that, we estimated weathering rates and examined whether specific properties of the configurations can be used to reliably predict weathering rates. Somewhat to our suprise, the answer is mostly no. See the <a href="refs/baum_sensitive_2022.pdf" target="_blank">paper</a> for details, but we found that the amount of land in the tropics has very little relation to estimates of the global weathering rate. This is surprising because the tropics are hot and putting more land there should boost weathering. We also saw that smaller continents lead to higher weathering, but still with lots of variation.
+  </p>
+
+  <p>
+    Before looking at how things like latitude and size influence weathering on isolated landmasses, here is an overview of the results in our previous <a href="refs/baum_sensitive_2022.pdf">paper</a>. For each random configuration, I take the simulated temperature and runoff at each grid cell, estimate weathering with WHAK or MAC, then sum them all up with proper weight on cell areas. Its important to remember that I'm not accounting for geochemical differences between landmasses, although that could almost certainly be done using the same set of model results. I'm also not accounting for an topography, which is hard to generate at random and significantly complicates the process of estimating weathering without clear advantage (I think). That said, the distributions of total, global weathering rates for all 120 random configurations are below.
+  </p>
+
+  <div class="figure small-figure" id="fig-4">
+    <img src="img/notebook/weathering_distributions.png">
+    <p>
+      <b>Figure 4:</b> Total weathering distributions for aggregate configurations. Meaning: these are the distributions of global weathering for all 120 maps, not individual landmasses.
+    </p>
+  </div>
+
+  <p>
+    This is an indication of how much weathering varies in response to different continental configurations. The corresponding distributions of equilibrium temperatures are shown below. I use the same assumptions described above for <a href="#fig-2">Figure 2</a>, but I'm also assuming that the <i>pattern</i> of temperature and runoff would not change in response to different carbon dioxide levels, only their magnitudes. I'd like to have simulated results for all possible states, but I don't, so the distributions below are rough estimates.
+  </p>
+
+  <div class="figure small-figure" id="fig-5">
+    <img src="img/temperature_response_distributions.png">
+    <p>
+      <b>Figure 5:</b> Temperature response distributions for the weathering distributions in <a href="#fig-4">Figure 4</a>.
+    </p>
+  </div>
+
+  <h4 id="segmented-land-masses">Segmented Land Masses</h4>
+
+  <p>
+    Now I pick up where our <a href="refs/baum_sensitive_2022.pdf" target="_blank">paper</a> left off. Instead of treating each of the 120 random maps as a single sample, I treat every individual landmass within each map as a sample, "segmenting" them into constituent landmasses. Separating them gives me the opportunity to analyze how weathering responds to things like size and latitude more precisely because these properties are no longer pooled into global metrics. It also increases the sample size from 120 individual maps to <a href="data/segmented_weathering.csv" target="_blank">934 individual landmasses</a>. Fundamentally, though, I'm looking at the same underlying model results in a different way.
+  </p>
+
+  <p>
+    After segmentation, there are many more small continents than large ones. This is predictable. The total land area is fixed for each map, so it can be occupied by lots of small continents or very few big ones. The plot below shows absolute mean latitude $(\theta)$ scattered against area for each landmass. The "absolute mean latitude" is the area-weighted average of the latitude for all grid cells comprising a landmass. I take the absolute value and ignore the distinction between Northern and Southern hemipsheres, which isn't relevant. I think of $\theta$ as the "center of latitude" for each landmass, analogous to a center of mass.
+  </p>
+
+  <div class="small-figure figure" id="fig-6">
+    <img src="img/notebook/scatter_area.png">
+    <p>
+      <b>Figure 6:</b> Area against mean latitude for all of the samples, with marginal histograms.
+    </p>
+  </div>
+
+  <p>
+    As mentioned already, there is a pile up of little continents, but a good number of larger continents with latitudes up to about 45$^{\circ}$ as well. It looks like there is a slight bias toward the largest continents at the very top of the plot, but this shouldn't be problematic. There are also a ton of small continents at about 90$^{\circ}$, all at the exact same point in the lower right corner of the plot. This is intentional and mostly irrelevant. The GCM requires the poles to be occupied by land so we had to add in tiny polar cap continents.
+  </p>
+
+  <h4 id="weathering-and-geometry">Weathering and Geometry</h4>
+
+  <p>
+    How does the position, size, and shape of a continent influence the weathering rate over its surface? That's the question.
+  </p>
+
+  <p>
+    Here are the estimated weathering rates for all of the individual landmasses. The top row shows WHAK weathering and the bottom shows MAC. Both are <i>area-weighted averages</i> of the weathering, as indicated by the subscripts. I have 6 different features in the columns. The first is, as described above, absolute mean latitude. The second, $\theta_m$, is the absolute <i>minimum</i> latitude occuped by each landmass. Perhaps, I thought, that might be a better predictor than mean latitude for large continents. The $D$ feature is how far each cell in a continent is from the closest ocean cell, on average. It measures proximity to ocean. Area and perimeter are self-explanatory, but I also include the ratio of perimeter and $\sqrt{A}$, a dimensionless quantity that might help capture the shape and roundness of each landmass.
+  </p>
+
+  <p>
+    In these and all subsequent scatter plots, marker size represents land area and marker color represents $\theta$ unless otherwise stated.
+  </p>
+
+  <div class="figure" id="fig-7">
+    <img src="img/notebook/scatters_weathering_mean.png">
+    <p>
+      <b>Figure 7:</b> Area-weighted average weathering for all samples. Marker size represents land area and marker color represents $\theta$.
+    </p>
+  </div>
+
+  <p>
+    Latitude is significant. The highest weathering rates all occur at low latitudes. There is also a midlatitude peak in MAC weathering, which is caused by a higher sensitity to runoff in that parameterization. Our simulations exhibit fairly predictable Hadley cells, with wetter regions around the equator and midlatitdes. I also want to point out that the big circles in the $\theta_m$ plots are all on the far left, meaning the biggest continents all have at least some land area at nearly equatorial latitudes. I assume this is just because they're so big, but it means $\theta_m$ might not be a predictive feature. Finally, I observe that mean weathering over the largest continents is concentrated around a moderately low value, with much more variability among small landmasses.
+  </p>
+
+  <p>
+    Here are the same plots with logarithmic vertical axes:
+  </p>
+
+  <div class="figure" id="fig-8">
+    <img src="img/notebook/scatters_weathering_logmean.png">
+    <p>
+      <b>Figure 8:</b> Area-weighted average weathering for all samples, on a log vertical axis.
+    </p>
+  </div>
+
+  <p>
+    This is a more illuminating perspective, I think. The exponential temperature dependence of WHAK weathering is very apparent. Temperature depends primarily on latitude in all simulations and log-transformed WHAK$_A$ has clear correlations with $\theta$ and $\theta_m$, although $\theta_m$ has more to do with small continents. Latitude is less informative for MAC, although there is some structure. The highest values are equatorward with another characteristic midlatitude hump. The other features like $D$ and area appear to have little explanatory value. As before, the big continents have much less variation than the small ones, but size alone doesn't correlate well with mean weathering.
+  </p>
+
+  <p>
+    Here is another look at how weathering depends on latitude and area. I grouped all the samples into 5 latitude bins and 5 area bins, and these are the distributions on logarithmic vertical axes.
+  </p>
+
+  <div class="figure" id="fig-9">
+    <img src="img/notebook/boxes_area_avg.png">
+    <p>
+      <b>Figure 9:</b> Weathering distributions grouped by latitude and area.
+    </p>
+  </div>
+
+  <p>
+    The same general obervations as above can be made. It's even more clear that big continents have relatively narrow weathering distributions which are similar across latitude.
+  </p>
+
+  <h4 id="explanatory-models">Explanatory Models</h4>
+
+  <p>
+    With that basic description of the results out of the way, I try to understand and quantify the extent to which weathering can be reliably predicted. The questions are:
+  
+    <ul>
+      <li>How much of the weathering variability can be captured by a simple model of these geometric features?</li>
+      <li>Which features are most important?</li>
+    </ul>
+  </p>
+
+  <p>
+    To this end, I fit a number of regressions and look at the $r^2$ scores, which measure the proportion of the weathering's variance explained by a model.
+  </p>
+  
+  <p>
+    First, as a kind of baseline, I fit simple exponential curves to the WHAK and MAC results as functions of mean latitude $\theta$. It's clear that latitude is important and I want to see how well a model does when it's targeted mostly at the steep rise in weathering near the equator. This kind of model finds the maximum likelihood of the expected weathering assuming error distributed according to
+    \begin{equation}
+      W \sim \mathcal{N} \left( c e^{a\theta} + b , \sigma \right) \, ,
+    \end{equation}
+    with three model parameters $c$, $a$, and $b$. Something similar could also be done with a generalized linear model, but I actually <i>want</i> to see the results of regression with weathering terms in untransformed space, residuals equally weighted on the origial scale at all latitudes, simply fitting the curve and minimizing mean square error. It's a more intuitive baseline. The results are shown below, with residuals on the right.
+  </p>
+
+  <div class="figure" id="fig-10">
+    <img src="img/notebook/regression_weathering_exponential.png">
+    <p>
+      <b>Figure 10:</b> Regressions using a three-parameter exponential curve. 
+    </p>
+  </div>
+
+  <p>
+    The WHAK model achieves $r^2 = 0.57$ and the MAC one $r^2 = .42$. Importantly, residuals for big continents have a clear structure. Model predictions are way too high for big, low-latitude continents, which don't exhibit high tropical weathering like the small continents. It looks like the modeled expectation needs to account for size, somehow, to better explain the results.
+  </p>
+
+  <p>
+    Next, I take a standard approach to examining which features are the most important predictors of weathering&mdash;lasso paths. Lasso regression is just multiple linear regression with an $\mathscr{l}_1$ penalty on the regression coefficents. It promotes coefficient sparsity by pushing them to zero as the penalty weight is increased. By sweeping over a range of penalty coefficents ($\alpha$), the mix and magnitude of regression coefficients $(\beta)$ changes until only one remains, then zero.
+  </p>
+    
+  <p>
+    Here are the results for all features on the untransformed axis and after log transformation (with predictors standardized in all cases).
+  </p>
+
+  <div class="figure" id="fig-11">
+    <img src="img/notebook/lasso_paths.png">
+    <p>
+      <b>Figure 11:</b> Lasso path coefficients for all features, fitting to the mean weathering and the logarithm of mean weathering.
+    </p>
+  </div>
+
+  <p>
+    Latitude and/or minimum latitude are important features in all cases. Without log transformation, $\theta$ is the last surviving feature for both WHAK and MAC. This is not surprising, considering <a href="#fig-7">Figure 7</a>. Curiously though, after log transformation the <i>minimum</i> latitude is more important for WHAK and MAC. It also seems like the perimeter, of all the size/shape features, might be most important, and toss out $D$, which had no weight in the lasso paths.
+  </p>
+
+  <p>
+    Now I use small neural networks, specifically multi-layer perceptrons (MLPs), as regression models for the weathering response. They're flexible and should be able to capture the shape of the weathering functions, but I will have to carefully control their capacity and smoothness. I decided on models with 2 hidden layers and an $\mathscr{l}_2$ regularization coefficient of 0.04 to encourage well behaved fits. To choose a suitable network size without overfitting, I cross validate with different numbers of hidden units. For each network size, I repeatedly fit models to a random selection of 70 % of the dataset and compute the $r^2$ score on the other 30 %, the "shuffle & split" approach. I fit 32 models for each size, using all of the features, and summarize the results below. I also neglect the perimeter/$\sqrt{A}$ feature, which is redundant in dense networks, and $D$, which the lasso paths consistently rejected.
+  </p>
+
+  <div class="figure" id="fig-12">
+    <img src="img/notebook/hidden_size_cv.png">
+    <p>
+      <b>Figure 12:</b> Distributions of regression scores using different MLP hidden layer sizes.
+    </p>
+  </div>
+
+  <p>
+    It looks like 4 perceptrons in the hidden layers is a good choice. Next, with flexible models in the form of MLPs, I look further into which features are the most important predictors of weathering. To do so, I fit a bunch of networks for every combination of features, again using the shuffle & split apprach, and look at the distribution of $r^2$ scores.
+  </p>
+
+  <div style="max-width: 7in;" class="figure small-figure" id="fig-13">
+    <img src="img/notebook/feature_permutation.png">
+    <p>
+      <b>Figure 13:</b> Feature permutation scores using MLPs with two hidden layers and four perceptrons per hidden layer.
+    </p>
+  </div>  
+
+  <p>
+    This is a lot of valuable information. The dashed red line indicates the score for the exponential regressions above, which only used $\theta$ as a predictor. An MLP trained only on $\theta$ predicts WHAK with a very similar score, indicating that the exponential shape is close to optimal for a single-feature WHAK model. For MAC, an MLP with only $\theta$ clearly outperforms its exponential counterpart. The midlatitude weathering peak in MAC is not captured well by an exponential curve, which explains the MLP's superiority. It's also clear that $\theta_m$ is inferior to $\theta$ when only one of these is present, and combining them has little value.
+  </p>
+
+  <p>
+    $A$ and $P$ have no predictive value on their own. None! They produce scores very near zero, so they're just predicting the a constant value near the mean. The best performing feature combinations, with scores indicated by the dashed gray lines, are only slightly better than their nearest competitors. There isn't a clear advantage to using one of $P$ or $A$ in combination with $\theta$. In light of all this information, I look further into regressions using only $\theta$ and $A$, which yield high $r^2$ values with the most intuitive features.
+  </p>
+
+  <div class="figure" id="fig-14">
+    <img src="img/notebook/regression_MLP.png">
+    <p>
+      <b>Figure 14:</b> The results of MLPs with two hidden layers and four perceptrons per hidden layer, trained on mean weathering.
+    </p>
+  </div>
+
+  <p>
+    Above, I've plotted the prediction surfaces for these regressions, along with scatters of their residuals and the residual distributions. They yield $r^2$ values of 75-80 %, same as in <a href="#fig-13">Figure 13</a>. The WHAK prediction surface is characteristically dominated by high weathering over small tropical bits of land, with negligible residuals everywhere else. For MAC, the tropics are less dominant and the midlatitude hump shows up once again for small landmasses.
+  </p>
+
+  <p>
+    I plot the same regression surface below, but ignoring the highest values at low latitudes below 15$^{\circ}$, just to see them better. These surfaces are not always the same and depend slightly on parameter initialization, even if the regression scores are consistent. It's also worth remembering that there are no large continents at high mean latitudes, so the upper right portions of these surfaces are meaningless.
+  </p>
+
+  <div class="figure" id="fig-15">
+    <img src="img/notebook/regression_MLP_zoom.png">
+    <p>
+      <b>Figure 15:</b> The same prediction surface as above, ignoring latitudes below 15$^{\circ}$.
+    </p>
+  </div>
+
+  <p>
+    That's it for this part. To address the opening questions directly
+    <ol>
+      <li>How much of the weathering variability can be captured by a simple model of these geometric features? <b>MLPs can achieve $r^2$ values of 75-80 % for WHAK and MAC. Mean absolute error can be reduced to ~2 % of the total weathering range for WHAK and ~7 % for MAC.</b></li>
+      <li>Which features are most important? <b>Latitude is clearly the most important feature. Minimum latitude doesn't help. Area and perimeter are both useful but only one is necessary.</b></li>
+    </ol>
+  </p>
+
+  <p>
+    How does this compare with our previous <a href="refs/baum_sensitive_2022.pdf" target="_blank">paper</a>? The main finding of that paper was that, taking each continental configuation as a whole, there was scarcely any correlation between <i>total</i> weathering and the amount of land in the tropics. Here, in contrast, I'm finding that latitude is pretty important and about 80 % of the variation can be captured.
+  </p>
+
+  <p>
+    Both are true and the contrast itself is informative. I think it can be explained by the very weak relationship between latitude and weathering for the largest landmasses. As I will show in more depth below, the big continents have the biggest impact on total weathering, simply by virtue of their surface area. Their weak latitude response dominates the total weathering signal. Configurations made up of smaller landmasses probably do respond more strongly to latitude, on average, but their much higher variation in weathering obscures the signal. On top of that, it relatively unlikely to have a concentration of many small continents in the tropics. They tend to be more spread out.
+  </p>
+
+  <p>
+    Some of this speculation could be further tested with a refined batch of simulations. For example, if you keep all of the land inside a tropical band (< 15$^{\circ}$ or so), then vary the size of the continents, what do you see? In this case, the tropical land fraction <i>and</i> total land fraction are controlled across configurations. I expect the weathering response would be pretty clear, especially for WHAK.
+  </p>
+
+  <h4 id="influence-of-little-terrains">The Influence of Little Terrains</h4>
+
+  <p>
+    Now on to a slightly different question: How much can small landmasses influence global weathering?
+  </p>
+
+  <p>
+    The underlying question is: are relatively small continents emerging in the tropics, like modern Indonesia, expected to have a significant impact on climate? Of course, this also applies to small landmasses slowly drifting into or out of the tropics.
+  </p>
+
+  <p>
+    It's possible that small continents made of mafic rocks, which drive the weathering process particularly quickly, set Earth's weathering rate and temperaure record as they move in/out of the tropics. See <a href="https://www.science.org/doi/10.1126/science.aav5300" target="_blank">this paper</a> for more. Remember, I'm not accounting for any geochemical differences between landmasses in these weathering estimates. That might be worth doing, as mineralogy can have a strong influence. It could be a good starter/side project for a grad student to take the exact dataset used here, account for mineralogical variability, and do some of the same analysis. Easy paper!
+  </p>
+
+  <p>
+    So far, I have only looked at area-weighted mean weathering for each landmass. It's worth looking at <i>total</i> weathering now. The box plots below show the distributions of total weathering, again grouped by latitude and size, same as in <a href="#fig-9">Figure 9</a>. Notice that now I have WHAK$_T$ and MAC$_T$ on the vertical axes to indicate they are weathering totals instead of averages.
+  </p>
+
+  <div class="figure" id="fig-16">
+    <img src="img/notebook/boxes_total.png">
+    <p>
+      <b>Figure 16:</b> Total weathering distributions, split into groups by area and latitude.
+    </p>
+  </div>
+
+  <p>
+    Kinda unsurpsingly, small continents seem unlikely to have a major impact on the total weathering. Their total weathering rates are negligible outside low latitudes. They're small! So they have less weatherable land area. There is, nevertheless, apparently some chance that even the smallest tropical terrains can achieve WHAK weathering rates comparable to big continents.
+  </p>
+
+  <p>
+    Just for reference, here are the distributions of land areas in each of these categories. They're expressed as a fraction of the area of Indonesia today, for intuition, and on a log scale. So, zero is equal to the area of Indonesia.
+  </p>
+
+  <div class="figure small-figure" id="fig-17">
+    <img src="img/notebook/indonesia_area_fracs.png">
+    <p>
+      <b>Figure 17:</b> The size (area) distributions within the five groups in <a href="#fig-16">Figure 16</a>. The areas are expressed as a fraction of modern Indonesia's land area, just to make it more interpretable, and on a log scale.
+    </p>
+  </div>
+
+  <p>
+    The smallest group here is generally a factor of a few smaller than Indonesia. The next group is a factor of several bigger, and so on up to the supercontinents...
+  </p>
+
+  <p>
+    The highest weathering rates area all in the tropics, and all among small landmasses. Here are the weathering rates for just those samples below 20$^{\circ}$ and in the smallest size category above. The size of each marker still represents the size of the landmass, but the underlying area values are much small than in previous plots. Again, it's also a little more clear to put the weathering on a log axis, so I did.
+  </p>
+
+  <div class="figure" id="fig-18">
+    <img src="img/notebook/scatters_weathering_total_tropical.png">
+    <p>
+      <b>Figure 18:</b> Total weathering rates for small, low-latitude landmasses.
+    </p>
+  </div>
+
+  <p>
+    To understand how much of an impact these small pieces of land can have, I'd like to infer the distribution of weathering rates right at the equator, at $\theta=0$, where the rates are systematically highest. To do so, I'll use Bayesian regression. Before doing that, however, there are some aspects of the above plots that inform modeling choices.
+  </p>
+
+  <p>
+    First, WHAK weathering is considerably higher at the equator, so I'll focus on that and leave MAC behind. Second, landmass size has to be accounted for in addition to latitude, even within this smallest group of samples. Third, the variation is considerably smaller (in log space) at the equator&mdash;heteroskedasticity. This also needs to be accounted for to get an accurate sense of varation <i>at the equator</i>, where weathering is highest.
+  </p>
+    
+  <p>
+    After messing around with (non-bayesian) multiple linear regressions, it seems like an interaction term between latitude and root-area is necessary to produce good fits. Below I plot some fits using four features, where the expected total weathering is expressed by the function
+    \begin{equation}
+      \log W = \beta_1 \theta + \beta_2 A + \beta_3 \alpha + \beta_4 \theta \alpha + b \, ,
+    \end{equation}
+    where $\alpha \equiv \sqrt{A}$, the $\beta$ terms are regression coefficients as usual, and $b$ is the intercept. Notice the terms for both $\alpha$ and $A$ (basis expansion), and the final interaction term for $\theta\alpha$.
+
+  <div class="figure" id="fig-19">
+    <img src="img/notebook/regression_multilinear_mixed.png">
+    <p>
+      <b>Figure 19:</b> Weathering rates for small, low-latitude landmasses.
+    </p>
+  </div>
+
+  <p>
+    The plot on the left shows fits across $\theta$ for different selections of $\alpha$, with the thinner lines representing smaller $\alpha$ values. The plot on the right shows the residuals. There are a couple of outlying points with super low weathering rates, but the residuals are well behaved.
+  </p>
+
+  <p>
+    Now I infer the distribution of equatorial weathering, not just the expectation, with Bayesian multiple linear regression. A relatively simple way to include heteroskedasticity is to additionally model the variance as a function of $\theta$, instead of a constant, and force it to be smoothly positive.
+    \begin{align}
+      \mu &= \beta_1 \theta + \beta_2 A + \beta_3 \alpha + \beta_4 \theta \alpha + b \\
+      \nu &= \gamma \theta + g \\
+      \sigma &= \log \left( 1 + e^{\nu} \right) \\
+      \log W &\sim \mathcal{N} \left(\mu, \, \sigma \right)
+    \end{align}
+    where $\mu$ takes the same form as above and $\sigma$ is modeled with new parameters $\gamma$ and $g$. Here is a look at what the Bayesian regression produces across $\theta$, for three different area values. Notice the higher uncertainty for larger landmasses, of which there are fewer.
+  </p>
+
+  <div class="figure" id="fig-20">
+    <img src="img/bayesian_regressions.png">
+    <p>
+      <b>Figure 20:</b> Regression distributions for three different values of $A$ or $\alpha$. The white lines represent regression expectations $\mu$. Gray lines above and below indicate the 2.5 % and 97.5 % quantiles of the $\sigma$ distribution.
+    </p>
+  </div>
+
+  <p>
+    With estimates of all the parameter distributions, I focus on the equator. Here are the distributions of the expected WHAK values for different landmass area values. Specifically, these weathering values are computed via
+    \begin{equation}
+      \log W = \beta_2 A + \beta_3 \alpha + b \, ,
+    \end{equation}
+    using sampled values for the $\beta$ terms and $b$. The other terms are important to account for in the modeling, but drop out when the model is evaluated at $\theta = 0$.
+  </p>
+
+  <div class="figure small-figure" id="fig-21">
+    <img src="img/notebook/equator_whak_area.png">
+    <p>
+      <b>Figure 21:</b> Expected WHAK weathering rates at the equator for small landmasses. The wider faint band indicates the 95 % credible interval and the brighter narrow band indicates the 50 % credible interval. The white line is mean.
+    </p>
+  </div>
+
+  <p>
+    It seems like the effect of small landmasses on weathering and climate <i>could</i> be strong but is certainly not guaranteed to be. Very small ones, considerably less than the size of Indonesia, aren't likely to be important. They produce less than ~0.5 Tmols/yr. Compared to the baseline of 7 Tmole/yr, that could matter at the margin but isn't driving global climate. However, larger ones between 1 and 3 times the size of Indonesia are likely to have weathering rates of 1.5 Tmole/yr or higher, with rare cases producing 2.5 or 3 Tmole/yr. This represents a significant purturbation to the weathering cycle, even in the absence of geochemical effects.
+  </p>
+
+  <p>
+    Using simplified calculations, as in <a href="#fig-2">Figure 2</a>, a shift of 2 Tmole/yr represents a +2.1 K or -2.7 K response in equilibrium global temperature. A shift of 3 Tmole/yr represents a +3 K or -4.5 K response. That's meaningful. It's also interesting to see that the expected total weathering peaks with landmasses roughly 2 times the size of Indonesia. It would be very hard to judge why, but this is curious.
+  </p>
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>
+</div>
+
+<script>
+</script>
+
+</body>
+</html>
