@@ -2,5 +2,5 @@
 
 Look at the [site](https://markmbaum.github.io/segmented-ensemble-weathering/).
 
-![segmentation](plots/segmentation.png)
+![segmentation](img/segmentation.png)
 # segmented-ensemble-weathering
